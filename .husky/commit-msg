@@ -1,0 +1,3 @@
+#!/bin/sh
+
+bash .husky/lint_commit_message.sh "$1"
