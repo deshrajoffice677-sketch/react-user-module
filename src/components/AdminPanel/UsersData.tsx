@@ -357,7 +357,7 @@ export const sampleCourses: SampleCourse[] = [
   },
 ];
 
-export const sampleChannels: Channel[] = ['Q&A', 'Write', 'Private', 'Courses'];
+export const sampleChannels: any[] = ['# Q&A', '# Win', '# Course', '# Announcements', '# Q&A'];
 
 export const subscriptionInfo: SubscriptionInfoItem[] = [
   { label: 'Plan', value: 'Yearly' },

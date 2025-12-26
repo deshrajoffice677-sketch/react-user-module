@@ -33,7 +33,7 @@ export function MakeModeratorDialog({ className = "", cancel }: any) {
                 rounded-none bg-transparent
               "
             >
-              Make Courses
+              Courses
             </TabsTrigger>
 
             <TabsTrigger
@@ -46,21 +46,12 @@ export function MakeModeratorDialog({ className = "", cancel }: any) {
                 rounded-none bg-transparent
               "
             >
-              Moderated Channels
+              Channels
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="courses" className="max-h-80 overflow-y-auto p-6 space-y-3">
-            {/* Add Button */}
-            {/* <button
-              className="flex items-center gap-2 text-gray-600 hover:text-black mb-3"
-              onClick={() => toast.error('This feature is comming.')}
-            >
-              <div className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg flex items-center justify-center">
-                +
-              </div>
-              <span className="text-sm font-medium">Add Courses</span>
-            </button> */}
+
 
             {sampleCourses.map((course, i) => (
               <div
@@ -86,16 +77,7 @@ export function MakeModeratorDialog({ className = "", cancel }: any) {
           </TabsContent>
 
           <TabsContent value="channels" className="max-h-80 overflow-y-auto p-6 space-y-3">
-            {/* Add Button */}
-            {/* <button
-              className="flex items-center gap-2 text-gray-600 hover:text-black mb-3"
-              onClick={() => toast.error('This feature is comming.')}
-            >
-              <div className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg flex items-center justify-center">
-                +
-              </div>
-              <span className="text-sm font-medium">Add Channels</span>
-            </button> */}
+
 
             {sampleChannels.map((channel, i) => (
               <div

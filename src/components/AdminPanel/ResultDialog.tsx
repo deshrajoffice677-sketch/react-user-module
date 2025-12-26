@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { CheckIcon, XIcon } from 'lucide-react';
 
 export function ResultDialog({ type, isOpen, setIsOpen, title, message }: any) {
-  const iconBg = type === 'success' ? 'bg-green-100' : 'bg-red-100';
+  const iconBg = type === 'success' ? 'bg-green-300' : 'bg-red-100';
 
   const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
 

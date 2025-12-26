@@ -128,7 +128,7 @@ const UsersPage = () => {
 
   }
   return (
-    <MainLayout>
+    <MainLayout activePage="UsersPage">
       <div className="w-full px-4">
         <Tabs defaultValue="user-directory" className="mb-6">
           <TabsList className=" w-full justify-start gap-8 bg-transparent">

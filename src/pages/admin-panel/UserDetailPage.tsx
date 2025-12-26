@@ -5,19 +5,17 @@ import { toast } from 'sonner';
 import { ResultDialog } from '@/components/AdminPanel/ResultDialog';
 import { useState } from 'react';
 import { ManageModeratorDialog } from '@/components/AdminPanel/ManageModeratorDialog';
-
+import { ArrowLeft, Lock } from 'lucide-react';
 
 import { MakeModeratorDialog } from '@/components/AdminPanel/MakeModeratorDialog';
-import {
-  sampleChannels,
-  subscriptionInfo,
-  upcomingCalls,
-} from '@/components/AdminPanel/UsersData';
-import { CourseCard } from '@/components/AdminPanel/CourseCard';
+
 import { useUserDetail } from '@/helpers/queries/user/useUserDetail';
 import { useUserDelete } from '@/helpers/queries/user/useUserDelete';
 import { useUpdateStatus } from '@/helpers/queries/user/useUpdateStatus';
 import { useNavigate } from "react-router-dom";
+import Leaderboard from '@/components/AdminPanel/Leaderboard';
+import { ModeratorBadge } from '@/assets/svg/ModeratorBadge';
+
 
 const UserDetailPage = () => {
   const navigate = useNavigate();
@@ -67,117 +65,218 @@ const UserDetailPage = () => {
   return (
     <>
       <div className="w-full bg-[#F8F9FC] p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center  mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-md hover:bg-gray-100 transition"
+          >
+            <ArrowLeft className="h-6 w-6 text-gray-900" />
+          </button>
           <h1 className="text-xl font-semibold text-gray-900">User Profile</h1>
-
-          <div className="flex items-center gap-3">
-            <input
-              type="text"
-              placeholder="Search"
-              className="border rounded-lg px-3 py-1 text-sm w-60 bg-white shadow-sm"
-            />
-            <img src={currentUser.avatar} className="w-9 h-9 rounded-full" alt="user" />
-          </div>
         </div>
 
         <div className="bg-[#E9F0FF] p-5 rounded-xl flex justify-between items-center shadow-sm">
           <div className="flex items-center gap-4">
             <img src={currentUser.avatar} className="w-16 h-16 rounded-full" />
             <div>
-              <h2 className="text-lg font-semibold">{currentUser.name}</h2>
-              <p className="text-sm text-gray-500">{currentUser.email}</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold leading-none">
+                  {currentUser.name}
+                </h2>
+
+                {currentUser.role === 'Moderator' && <ModeratorBadge />}
+              </div>
+
+              <p className="text-sm text-gray-500 mt-1">
+                {currentUser.email}
+              </p>
             </div>
+
           </div>
 
           {currentUser.role === 'Moderator' ? <ManageModeratorDialog /> : <MakeModeratorDialog />}
         </div>
 
-        <section className="mt-6 bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="font-semibold text-lg mb-4">Activity Summary</h3>
+        <section className="mt-6 bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-lg mb-6">Activity Summary</h3>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 text-sm">
-            <SummaryItem label="Last Login" value="Yesterday" />
-            <SummaryItem label="Points Earned" value="160" />
-            <SummaryItem label="Lessons Completed" value="42" />
-            <SummaryItem label="Channels Joined" value="05" />
-            <SummaryItem label="Events Attended" value="07" />
-            <SummaryItem label="Leaderboard Ranking" value="#12" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-12 text-sm">
+            <div>
+              <p className="text-gray-500">Last Login</p>
+              <p className="text-base font-semibold text-gray-900 mt-1">
+                Yesterday
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Lessons Completed</p>
+              <p className="text-base font-semibold text-gray-900 mt-1">
+                42
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Events Attended</p>
+              <p className="text-base font-semibold text-gray-900 mt-1">
+                07
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Points Earned</p>
+              <p className="text-base font-semibold text-gray-900 mt-1">
+                160
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Channels Joined</p>
+              <p className="text-base font-semibold text-gray-900 mt-1">
+                05
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Leaderboard Ranking</p>
+              <p className="text-base font-semibold text-gray-900 mt-1">
+                #12
+              </p>
+            </div>
           </div>
         </section>
 
-        <section className="mt-6 bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="font-semibold text-lg mb-4">Leaderboard</h3>
 
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="font-medium text-sm">Badges</h4>
-            <button className="text-xs font-medium text-blue-600">View all Badges</button>
-          </div>
+        <Leaderboard />
 
-          <div className="grid grid-cols-5 gap-3 mb-6">
-            {['Brainiac', 'Creative Thinker', 'Fast Starter', 'Top Scorer', 'Quiz Champion'].map(
-              (b, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-50 border rounded-lg p-2 text-center text-xs font-medium"
-                >
-                  {b}
-                </div>
-              ),
-            )}
-          </div>
 
-          <h4 className="font-medium text-sm mb-2">Weekly Progress</h4>
-          <div className="border rounded-lg p-4 text-center text-gray-500">No Activity Data</div>
-        </section>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CourseCard />
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="font-semibold mb-3">Channels</h3>
+          {/* COURSES */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="font-semibold text-lg mb-4">Courses</h3>
 
-            <div className="flex flex-col gap-3">
-              {sampleChannels.map((ch, i) => (
-                <div key={i} className="border rounded-lg px-4 py-3 bg-gray-50 text-sm">
-                  {ch}
+            <div className="space-y-6 max-h-[320px] overflow-y-auto pr-2">
+              {[
+                { title: 'Lorem ipsum dolor', progress: 100, status: 'Completed' },
+                { title: 'Lorem ipsum dolor', progress: 40, status: 'In progress' },
+                { title: 'Lorem ipsum dolor', progress: 100, status: 'Completed' },
+              ].map((course, i) => (
+                <div key={i} className="flex gap-4 items-start">
+                  <img
+                    src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=80"
+                    className="w-14 h-14 rounded-md object-cover"
+                    alt=""
+                  />
+
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <p className="font-medium text-sm">{course.title}</p>
+
+                      <span
+                        className={`text-xs px-3 py-1 rounded-full font-medium ${course.status === 'Completed'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-yellow-100 text-yellow-600'
+                          }`}
+                      >
+                        {course.status}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-1">
+                      {course.progress}% completed
+                    </p>
+
+                    <div className="h-2 bg-gray-200 rounded-full mt-2">
+                      <div
+                        className="h-2 bg-gray-900 rounded-full"
+                        style={{ width: `${course.progress}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="font-semibold mb-3">Subscription Info</h3>
+          {/* CHANNELS */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="font-semibold text-lg mb-4">Channels</h3>
 
-            {subscriptionInfo.map((info, i) => (
-              <div key={i} className="flex justify-between py-2 border-b last:border-none">
-                <span className="text-gray-500 text-sm">{info.label}</span>
-                <span className="font-medium text-sm">{info.value}</span>
+            <div className="divide-y text-sm">
+              <div className="py-4"># Q&amp;A</div>
+              <div className="py-4"># Wins</div>
+              <div className="py-4 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-black" /> Private
               </div>
-            ))}
+              <div className="py-4"># Course</div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="font-semibold mb-3">Upcoming Calls</h3>
+          {/* SUBSCRIPTION INFO */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="font-semibold text-lg mb-4">Subscription Info</h3>
 
-            {upcomingCalls.map((call, i) => (
-              <div key={i} className="border p-4 rounded-lg flex justify-between items-center mb-3">
-                <div>
-                  <p className="font-medium text-sm">{call.title}</p>
-                  <p className="text-xs text-gray-500">{call.date}</p>
+            <div className="divide-y text-sm">
+              <div className="flex justify-between py-4">
+                <span className="text-gray-500">Plan</span>
+                <span className="font-medium">{currentUser.subscription}</span>
+              </div>
+
+              <div className="flex justify-between py-4">
+                <span className="text-gray-500">Renewal Date</span>
+                <span className="font-medium">April 30, 2025</span>
+              </div>
+
+              <div className="flex justify-between py-4">
+                <span className="text-gray-500">Billing Status</span>
+                <span className="font-medium">Active</span>
+              </div>
+
+              <div className="flex justify-between py-4">
+                <span className="text-gray-500">Joined On</span>
+                <span className="font-medium">{new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: '2-digit',
+                  year: 'numeric',
+                })}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* UPCOMING CALLS */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="font-semibold text-lg mb-4">Upcoming Calls</h3>
+
+            <div className="space-y-4">
+              {[
+                { status: 'Going' },
+                { status: 'Not Going' },
+                { status: 'Going' },
+              ].map((call, i) => (
+                <div key={i} className="flex justify-between items-center border-b pb-4 last:border-none">
+                  <div>
+                    <p className="font-medium text-sm">Lorem ipsum dolor</p>
+                    <p className="text-xs text-gray-500">
+                      April 30, 2025 at 2:00 PM
+                    </p>
+                  </div>
+
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full font-medium ${call.status === 'Going'
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-red-100 text-red-600'
+                      }`}
+                  >
+                    {call.status}
+                  </span>
                 </div>
-
-                <span
-                  className={`px-3 py-1 text-xs rounded-full font-medium ${call.status === 'Ending'
-                    ? 'bg-red-100 text-red-600'
-                    : 'bg-green-100 text-green-600'
-                    }`}
-                >
-                  {call.status}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
         </div>
+
 
         <div className="flex gap-3 mt-8">
           <PasswordResetDialog
@@ -223,9 +322,10 @@ const UserDetailPage = () => {
             message="Delete this Account?"
             messageDescription="Are you sure you want to delete this account?"
             Delete={deleteAccount}
-            DeleteButtonText="Delete"
-            CancelButtonText="Cancel"
+            DeleteButtonText="Delete Account"
+            CancelButtonText="Close"
             type="delete"
+
           />
         </div>
       </div>

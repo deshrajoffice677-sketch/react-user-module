@@ -68,26 +68,27 @@ export default function AuditLogTable({ title, data }: any) {
   return (
     <>
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        <div className="flex items-center justify-between gap-4">
-          <Input placeholder="Search" className="max-w-sm rounded-lg" />
+        <div className='flex justify-between  '>
+          <h2 className="text-xl font-semibold">{title}</h2>
+          <div className="flex items-center justify-between gap-4">
+            <Input placeholder="Search" className="max-w-sm rounded-lg" />
 
-          <div className="flex items-center gap-6">
-            {dropDownItems.map((item, index) => (
-              <DropDownComponent
-                key={index}
-                label={item.Label}
-                value={item.getter}
-                setValue={item.setter}
-                list={item.value}
-              />
-            ))}
+            <div className="flex items-center gap-6">
+              {dropDownItems.map((item, index) => (
+                <DropDownComponent
+                  key={index}
+                  label={item.Label}
+                  value={item.getter}
+                  setValue={item.setter}
+                  list={item.value}
+                />
+              ))}
+            </div>
           </div>
         </div>
-
         <div className="border rounded-xl overflow-hidden shadow-sm bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-700">
+            <thead className="bg-gray-50 font-extrabold text-black">
               <tr>
                 <th className="p-4 text-left w-10">#</th>
                 <th className="p-4 text-left">Action Taken By</th>
@@ -99,9 +100,9 @@ export default function AuditLogTable({ title, data }: any) {
             </thead>
 
             <tbody>
-              {filteredData.map((row: any) => (
-                <tr key={row.id} className="border-t hover:bg-gray-50 transition">
-                  <td className="p-4">{row.id}</td>
+              {filteredData.map((row: any, index: any) => (
+                <tr key={row.id} className=" hover:bg-gray-50 transition">
+                  <td className="p-4">{index + 1}</td>
 
                   <td className="p-4">
                     <div className="flex items-center gap-3">

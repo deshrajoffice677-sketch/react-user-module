@@ -8,18 +8,22 @@ import { ManageModeratorDialog } from '@/components/AdminPanel/ManageModeratorDi
 
 import MainLayout from '@/components/layout/MainLayout';
 import { MakeModeratorDialog } from '@/components/AdminPanel/MakeModeratorDialog';
-import { sampleChannels, subscriptionInfo, upcomingCalls } from '@/components/AdminPanel/UsersData';
+import {
+  sampleChannels,
+  subscriptionInfo,
+  upcomingCalls,
+} from '@/components/AdminPanel/UsersData';
 import { CourseCard } from '@/components/AdminPanel/CourseCard';
 import { useUserDetail } from '@/helpers/queries/user/useUserDetail';
 import { useUserDelete } from '@/helpers/queries/user/useUserDelete';
 import { useUpdateStatus } from '@/helpers/queries/user/useUpdateStatus';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const UserDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { data: currentUser } = useUserDetail(Number(id));
+  const { data: currentUser, } = useUserDetail(Number(id));
 
   const RemoveAccount = () => toast.success('User removed successfully');
 
@@ -43,20 +47,22 @@ const UserDetailPage = () => {
   const { mutate: mutateDelete } = useUserDelete();
   const { mutate: mutateStatus } = useUpdateStatus();
   const suspendAccount = (): any => {
-    mutateStatus({ id: Number(id), status: 'Suspended' });
-  };
+    mutateStatus({ id: Number(id), status: "Suspended" });
+
+  }
   const deleteAccount = (): any => {
     mutateDelete({ id: Number(id) });
 
     setTimeout(() => {
-      navigate('/user-management/users');
-    }, 1000);
-  };
+
+      navigate("/user-management/users")
+    }, 1000)
+  }
 
   if (!currentUser) return <div>No user Found</div>;
 
   return (
-    <MainLayout>
+    <MainLayout activePage="UserDetailPage">
       <div className="w-full bg-[#F8F9FC] p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-gray-900">User Profile</h1>
@@ -158,11 +164,10 @@ const UserDetailPage = () => {
                 </div>
 
                 <span
-                  className={`px-3 py-1 text-xs rounded-full font-medium ${
-                    call.status === 'Ending'
-                      ? 'bg-red-100 text-red-600'
-                      : 'bg-green-100 text-green-600'
-                  }`}
+                  className={`px-3 py-1 text-xs rounded-full font-medium ${call.status === 'Ending'
+                    ? 'bg-red-100 text-red-600'
+                    : 'bg-green-100 text-green-600'
+                    }`}
                 >
                   {call.status}
                 </span>

@@ -8,7 +8,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { TriangleAlertIcon, MinusCircleIcon, LockIcon } from 'lucide-react';
+import { AlertCircle, LockIcon, Ban } from 'lucide-react';
 
 const AlertDialogComponent = ({
   isSuspended,
@@ -23,20 +23,19 @@ const AlertDialogComponent = ({
   cancel
 }: any) => {
   const AlertIcon =
-    type === 'delete' ? TriangleAlertIcon : type === 'remove' ? MinusCircleIcon : LockIcon;
+    type === 'delete' ? AlertCircle : type === 'remove' ? Ban : LockIcon;
 
   const iconColor =
-    type === 'delete' ? 'text-red-600' : type === 'remove' ? 'text-blue-600' : 'text-gray-700';
+    type === 'delete' ? 'text-red-600' : 'text-gray-700';
 
   const iconBg =
-    type === 'delete' ? 'bg-red-100' : type === 'remove' ? 'bg-blue-100' : 'bg-gray-200';
+    type === 'delete' ? 'bg-red-100' : 'bg-gray-200';
 
   const actionBg =
     type === 'delete'
-      ? 'bg-red-600 hover:bg-red-700'
-      : type === 'remove'
-        ? 'bg-blue-600 hover:bg-blue-700'
-        : 'bg-gray-900 hover:bg-gray-800';
+      ? 'bg-slate-900 hover:bg-slate-800'
+      : 'bg-gray-900 hover:bg-gray-800';
+
 
   return (
     <AlertDialog>
@@ -58,7 +57,7 @@ const AlertDialogComponent = ({
     space-y-6
   "
       >
-         <div className={`flex items-center justify-center size-20 rounded-full ${iconBg}`}>
+        <div className={`flex items-center justify-center size-20 rounded-full ${iconBg}`}>
           <AlertIcon className={`size-10 ${iconColor}`} />
         </div>
 

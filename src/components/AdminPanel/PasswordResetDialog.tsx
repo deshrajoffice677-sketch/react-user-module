@@ -17,15 +17,13 @@ const PasswordResetDialog = ({ heading, password, setPassword, resetPassword }: 
         <Button variant="outline">{heading}</Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="max-w-md rounded-4xl p-6 bg-white">
+      <AlertDialogContent className="max-w-md rounded-2xl p-6 bg-white">
         <AlertDialogCancel
           className="
-      absolute right-3 top-3
-      rounded-full p-2 
-      hover:bg-gray-100 
-      text-gray-500 
-      focus:outline-none
-      bg-none
+      absolute right-4 top-4
+      rounded-md p-2
+      hover:bg-gray-100
+      text-gray-500
       border-0
     "
         >

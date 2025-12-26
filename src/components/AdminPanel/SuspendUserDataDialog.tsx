@@ -71,49 +71,65 @@ export default function BanedSuspendUserDataDialog({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">{title}</h2>
+      <div className='flex justify-between mt-7 '>
+        <h2 className="text-xl font-semibold">{title}</h2>
 
-      <div className="flex items-center justify-between gap-4">
-        <Input placeholder="Search" className="max-w-sm rounded-lg" />
+        <div className="flex items-center justify-between gap-4">
+          <Input placeholder="Search" className="max-w-sm rounded-lg" />
 
-        <div className="flex items-center gap-6">
-          {dropDownItems.map((item, index) => (
-            <DropDownComponent
-              key={index}
-              label={item.Label}
-              value={item.getter}
-              setValue={item.setter}
-              list={item.value}
-            />
-          ))}
+          <div className="flex items-center gap-6">
+            {dropDownItems.map((item, index) => (
+              <DropDownComponent
+                key={index}
+                label={item.Label}
+                value={item.getter}
+                setValue={item.setter}
+                list={item.value}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="border rounded-xl bg-white overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-700">
+          <thead className="bg-gray-50 font-extrabold text-black">
             <tr>
-              <th className="p-4 text-left">User</th>
-              <th className="p-4 text-left">Reason</th>
-              <th className="p-4 text-left">Start Date</th>
-              <th className="p-4 text-left">Duration</th>
-              <th className="p-4 text-left">Action</th>
+              <th className="py-3 pl-4 pr-2 text-left w-12">#</th>
+              <th className="py-3 px-4 text-left">User</th>
+              <th className="py-3 px-4 text-left">Reason</th>
+              <th className="py-3 px-4 text-left">Date Suspended</th>
+              <th className="py-3 px-4 text-left">Duration</th>
+              <th className="py-3 pr-14 pl-2 text-right">Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredData.map((u: any) => (
-              <tr key={u.id} className="border-t hover:bg-gray-50">
-                <td className="p-4 flex items-center gap-3">
-                  <img src={u.avatar || u.user?.avatar} className="w-8 h-8 rounded-full" />
-                  {u.name || u.user?.name}
+            {filteredData.map((u: any, index: number) => (
+              <tr key={u.id} className=" hover:bg-gray-50">
+
+                <td className="py-4 pl-4 pr-2 text-left">
+                  {index + 1}
                 </td>
 
-                <td className="p-4">{u.reason}</td>
-                <td className="p-4">{u.date}</td>
-                <td className="p-4">{u.duration}</td>
+                <td className="py-4 px-4 flex items-center gap-3">
+                  <img
+                    src={u.avatar || u.user?.avatar}
+                    className="w-8 h-8 rounded-full"
+                    alt=""
+                  />
+                  <span className="font-medium">
+                    {u.name || u.user?.name}
+                  </span>
+                </td>
 
-                <td className="p-4">
+                <td className="py-4 px-4">{u.reason}</td>
+
+                <td className="py-4 px-4">{u.date}</td>
+
+                <td className="py-4 px-4">{u.duration}</td>
+
+                <td className="py-4 pr-4 pl-2 text-right">
                   <Button
                     size="sm"
                     variant="outline"
@@ -127,6 +143,7 @@ export default function BanedSuspendUserDataDialog({
           </tbody>
         </table>
       </div>
+
     </div>
   );
 }

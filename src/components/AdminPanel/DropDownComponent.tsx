@@ -9,7 +9,7 @@ import {
 type DropdownProps = {
   label: string;
   value: string;
-  setValue: (value: string) => void;
+  setValue: (value: any) => void;
   list: string[];
 };
 

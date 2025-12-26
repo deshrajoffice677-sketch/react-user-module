@@ -27,6 +27,10 @@ import { useAuditUsers } from '@/helpers/queries/user/useAuditUsers';
 import { useLiftSuspension } from '@/helpers/queries/user/useLiftSuspension';
 import { useReinstateUser } from '@/helpers/queries/user/useReinstateUser';
 import { useUserDelete } from '@/helpers/queries/user/useUserDelete';
+import { ModeratorBadge } from '@/assets/svg/ModeratorBadge';
+import { formatDate } from '@/lib/DateFormatter';
+import { timeAgo } from '@/lib/RelativeTime';
+import { toast } from 'sonner';
 
 const tabs = [
   { label: 'User Directory', value: 'user-directory' },
@@ -135,6 +139,11 @@ const UsersPage = () => {
     lift(id);
   };
 
+  const sendInvitation = () => {
+    toast.success("Send invitation successfully.");
+    setFile(null);
+  }
+
   return (
     <>
       <div className="w-full px-4">
@@ -178,7 +187,7 @@ const UsersPage = () => {
 
             <div className="border rounded-xl overflow-hidden">
               <table className="w-full text-sm text-gray-700">
-                <thead className="text-xs font-medium text-gray-500 bg-gray-50">
+                <thead className="bg-gray-50 font-extrabold text-black">
                   <tr>
                     <th className="py-3 px-4 text-left">#</th>
                     <th className="py-3 px-4 text-left">Name</th>
@@ -196,7 +205,7 @@ const UsersPage = () => {
                   {selectUserList && selectUserList.map((u: any, index: number) => (
                     <tr
                       key={u.id}
-                      className="border-b hover:bg-gray-50 cursor-pointer transition"
+                      className=" hover:bg-gray-50 cursor-pointer transition"
                       onClick={() => navigate(`detail/${u.id}`)}
                     >
                       <td className="py-4 px-4">{index + 1}</td>
@@ -208,6 +217,8 @@ const UsersPage = () => {
                           className="h-8 w-8 rounded-full object-cover"
                         />
                         <span className="font-medium">{u.name}</span>
+
+                        {u.role === 'Moderator' && <ModeratorBadge />}
                       </td>
 
                       <td className="py-4 px-4">{u.email}</td>
@@ -229,8 +240,15 @@ const UsersPage = () => {
                       </td>
 
                       <td className="py-4 px-4">{u.subscription}</td>
-                      <td className="py-4 px-4">{u.joinedDate}</td>
-                      <td className="py-4 px-4">{u.lastActive}</td>
+                      <td className="py-4 px-4">
+                        {/* {u.joinedDate} */}
+                        {formatDate(u.joinedDate)}
+
+                      </td>
+                      <td className="py-4 px-4">
+                        {/* {u.lastActive} */}
+                        {timeAgo(u.lastActive)}
+                      </td>
 
                       <td className="py-4 px-4 text-right" onClick={(e) => {
                         // alert(u.id)
@@ -256,7 +274,7 @@ const UsersPage = () => {
 
                             <AlertDialogComponent
                               isSuspended={u.status}
-                              heading="Suspend Account"
+                              heading="Suspend"
                               message="Suspend this Account?"
                               messageDescription="This will temporarily restrict the user from logging in or accessing any platform features. You can reactivate their account anytime."
                               Delete={suspendAccount}
@@ -351,7 +369,7 @@ const UsersPage = () => {
                 )}
               </div>
 
-              <Button className="w-full bg-gray-300 text-gray-700 hover:bg-gray-400" disabled>
+              <Button className="w-full bg-gray-700 text-white hover:bg-gray-400" disabled={!file} onClick={() => sendInvitation()}>
                 Send Invites
               </Button>
             </div>
