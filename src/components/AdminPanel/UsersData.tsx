@@ -4,7 +4,6 @@ import type {
   SuspendedUser,
   AuditLogEntry,
   SampleCourse,
-  Channel,
   SubscriptionInfoItem,
   UpcomingCall,
 } from '../../types/interface/UsersInterface';
