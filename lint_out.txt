@@ -1,0 +1,15 @@
+
+D:\All Project\react-nest-assigenment\FE 7\FE\src\components\AdminPanel\InputPasswordValidation.tsx
+  14:29  error  Unnecessary escape character: \[  no-useless-escape
+
+D:\All Project\react-nest-assigenment\FE 7\FE\src\components\AdminPanel\PendingInvitesDialog.tsx
+  32:9  warning  The 'invites' array makes the dependencies of useMemo Hook (at line 46) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'invites' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+D:\All Project\react-nest-assigenment\FE 7\FE\src\components\shadcn-studio\input\input-46.tsx
+  19:29  error  Unnecessary escape character: \[  no-useless-escape
+
+D:\All Project\react-nest-assigenment\FE 7\FE\src\components\ui\button.tsx
+  59:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+✖ 4 problems (2 errors, 2 warnings)
+

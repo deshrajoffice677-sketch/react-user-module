@@ -21,6 +21,13 @@ type NavItemProps = {
   onClick?: () => void;
 };
 
+
+interface MainLayoutProps {
+  children: React.ReactNode;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+}
+
 const NavItem = ({ icon, text, isActive, sidebarOpen, onClick }: NavItemProps) => (
   <div
     onClick={onClick}
@@ -35,7 +42,7 @@ const MainLayout = ({
   children,
   showSearch = true,
   searchPlaceholder = 'Search for courses...',
-}: any) => {
+}: MainLayoutProps) => {
   const [sidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();

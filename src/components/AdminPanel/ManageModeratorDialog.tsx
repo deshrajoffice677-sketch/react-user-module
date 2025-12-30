@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { sampleChannels, sampleCourses } from './UsersData';
 import { DialogClose } from '@radix-ui/react-dialog';
 
-export function ManageModeratorDialog({ className = "", cancel }: any) {
+export function ManageModeratorDialog({ className = '', cancel }: { className?: string; cancel?: () => void }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -52,12 +52,12 @@ export function ManageModeratorDialog({ className = "", cancel }: any) {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="courses" className="max-h-80 overflow-y-auto p-6 space-y-3">
+          <TabsContent value="courses" className="max-h-80 overflow-y-auto p-2">
             <button
-              className="flex items-center gap-2 text-gray-600 hover:text-black mb-3"
+              className="flex items-center gap-2 text-gray-600 hover:text-black mb-3 pl-3"
               onClick={() => toast.error('This feature is comming.')}
             >
-              <div className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg flex items-center justify-center">
+              <div className="bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-lg flex items-center justify-center ">
                 +
               </div>
               <span className="text-sm font-medium">Add Courses</span>
@@ -68,7 +68,7 @@ export function ManageModeratorDialog({ className = "", cancel }: any) {
                 key={i}
                 className="
                   flex items-center justify-between gap-3 p-3 rounded-lg cursor-pointer
-                  hover:bg-blue-50 transition
+                  hover:bg-blue-50 transition 
                 "
               >
                 <div className="flex items-center gap-4">
@@ -86,12 +86,12 @@ export function ManageModeratorDialog({ className = "", cancel }: any) {
             ))}
           </TabsContent>
 
-          <TabsContent value="channels" className="max-h-80 overflow-y-auto p-6 space-y-3">
+          <TabsContent value="channels" className="max-h-80 overflow-y-auto p-2">
             <button
-              className="flex items-center gap-2 text-gray-600 hover:text-black mb-3"
+              className="flex items-center gap-2 text-gray-600 hover:text-black mb-3 pl-3"
               onClick={() => toast.error('This feature is comming.')}
             >
-              <div className="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg flex items-center justify-center">
+              <div className="bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-lg flex items-center justify-center">
                 +
               </div>
               <span className="text-sm font-medium">Add Channels</span>
@@ -103,14 +103,14 @@ export function ManageModeratorDialog({ className = "", cancel }: any) {
                 className="
                   flex items-center justify-between p-3 rounded-lg 
                   hover:bg-blue-50 cursor-pointer transition
-                "
+                pl-4"
               >
                 <span className="text-sm font-medium">{channel}</span>
 
                 <button
                   className="text-red-500 p-2 hover:bg-red-100 rounded-md"
                   onClick={() => {
-                    toast.success('Delete channel  successfully.')
+                    toast.success('Delete channel  successfully.');
                   }}
                 >
                   <Trash2 size={18} />

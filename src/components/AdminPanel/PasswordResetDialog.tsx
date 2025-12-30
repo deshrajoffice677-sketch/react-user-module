@@ -9,7 +9,14 @@ import {
 import { Button } from '@/components/ui/button';
 import InputPasswordValidation from './InputPasswordValidation';
 
-const PasswordResetDialog = ({ heading, password, setPassword, resetPassword }: any) => {
+interface PasswordResetDialogProps {
+  heading: string;
+  password: string;
+  setPassword: (password: string) => void;
+  resetPassword: () => void;
+}
+
+const PasswordResetDialog = ({ heading, password, setPassword, resetPassword }: PasswordResetDialogProps) => {
   const [open, setOpen] = useState(false);
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -29,11 +36,7 @@ const PasswordResetDialog = ({ heading, password, setPassword, resetPassword }: 
         >
           ✕
         </AlertDialogCancel>
-        <AlertDialogHeader className="text-center space-y-2">
-          {/* <AlertDialogTitle className="text-xl font-semibold">
-            Reset this User’s Password?
-          </AlertDialogTitle> */}
-        </AlertDialogHeader>
+        <AlertDialogHeader className="text-center space-y-2"></AlertDialogHeader>
 
         <div className="mt-4 space-y-4">
           <InputPasswordValidation
@@ -43,15 +46,6 @@ const PasswordResetDialog = ({ heading, password, setPassword, resetPassword }: 
             resetPassword={resetPassword}
           />
         </div>
-
-        {/* <AlertDialogFooter className="mt-6">
-          <AlertDialogAction
-            className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg py-3"
-            onClick={resetPassword}
-          >
-            Reset Password
-          </AlertDialogAction>
-        </AlertDialogFooter> */}
       </AlertDialogContent>
     </AlertDialog>
   );

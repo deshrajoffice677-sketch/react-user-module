@@ -354,9 +354,23 @@ export const sampleCourses: SampleCourse[] = [
     image:
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4O42VTWVI0EY_iGy5g0dbXeXkE0ZbZfuc0g&s',
   },
+  {
+    title: 'Lorem ipsum dolor',
+    progress: 90,
+    completedLabel: 'Completed',
+    image:
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4O42VTWVI0EY_iGy5g0dbXeXkE0ZbZfuc0g&s',
+  },
+  {
+    title: 'Lorem ipsum dolor',
+    progress: 90,
+    completedLabel: 'Completed',
+    image:
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4O42VTWVI0EY_iGy5g0dbXeXkE0ZbZfuc0g&s',
+  },
 ];
 
-export const sampleChannels: any[] = ['# Q&A', '# Win', '# Course', '# Announcements', '# Q&A'];
+export const sampleChannels: string[] = ['# Q&A', '# Win', '# Course', '# Announcements', '# Q&A'];
 
 export const subscriptionInfo: SubscriptionInfoItem[] = [
   { label: 'Plan', value: 'Yearly' },

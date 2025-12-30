@@ -6,11 +6,13 @@ import { toast } from 'sonner';
 import { sampleChannels, sampleCourses } from './UsersData';
 import { DialogClose } from '@radix-ui/react-dialog';
 
-export function MakeModeratorDialog({ className = "", cancel }: any) {
+export function MakeModeratorDialog({ className = '', cancel }: { className?: string; cancel?: () => void }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className={`px-4 py-2 border rounded-lg text-sm font-medium ${className}`}>Make Moderator</button>
+        <button className={`px-4 py-2 border rounded-lg text-sm font-medium ${className}`}>
+          Make Moderator
+        </button>
       </DialogTrigger>
 
       <DialogContent className="max-w-lg  bg-white p-0 shadow-xl overflow-hidden [&>button]:hidden">
@@ -50,9 +52,7 @@ export function MakeModeratorDialog({ className = "", cancel }: any) {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="courses" className="max-h-80 overflow-y-auto p-6 space-y-3">
-
-
+          <TabsContent value="courses" className="max-h-80 overflow-y-auto p-2 ">
             {sampleCourses.map((course, i) => (
               <div
                 key={i}
@@ -76,9 +76,7 @@ export function MakeModeratorDialog({ className = "", cancel }: any) {
             ))}
           </TabsContent>
 
-          <TabsContent value="channels" className="max-h-80 overflow-y-auto p-6 space-y-3">
-
-
+          <TabsContent value="channels" className="max-h-80 overflow-y-auto p-2">
             {sampleChannels.map((channel, i) => (
               <div
                 key={i}
