@@ -11,7 +11,7 @@ const requirements = [
   { regex: /.{8,}/, text: 'Minimum 8 characters' },
   { regex: /[0-9]/, text: 'At least 1 number' },
   {
-    regex: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/,
+    regex: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
     text: 'One special character',
   },
 ];

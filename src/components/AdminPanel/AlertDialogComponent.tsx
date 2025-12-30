@@ -8,7 +8,23 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, LockIcon, Ban } from 'lucide-react';
+import { AlertCircle, LockIcon, Ban, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+
+interface AlertDialogProps {
+  isSuspended?: string;
+  heading: string;
+  message: string;
+  messageDescription: string;
+  Delete: () => void;
+  DeleteButtonText: string;
+  CancelButtonText: string;
+  type: 'delete' | 'remove' | 'suspend';
+  className?: string;
+  cancel?: () => void;
+  loading?: boolean;
+  onSuccess?: () => void;
+}
 
 const AlertDialogComponent = ({
   isSuspended,
@@ -20,8 +36,20 @@ const AlertDialogComponent = ({
   CancelButtonText,
   type,
   className = "",
-  cancel
-}: any) => {
+  cancel,
+  loading = false,
+}: AlertDialogProps) => {
+  const [open, setOpen] = useState(false);
+
+  // Close dialog when loading ends and it was previously loading
+  const prevLoading = useRef(loading);
+  useEffect(() => {
+    if (prevLoading.current && !loading && open) {
+      setOpen(false);
+    }
+    prevLoading.current = loading;
+  }, [loading, open]);
+
   const AlertIcon =
     type === 'delete' ? AlertCircle : type === 'remove' ? Ban : LockIcon;
 
@@ -38,7 +66,7 @@ const AlertDialogComponent = ({
 
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button className={className} disabled={isSuspended === "Suspended" ? true : false} variant={type === 'delete' ? 'red' : 'outline'}>{heading}</Button>
       </AlertDialogTrigger>
@@ -75,9 +103,23 @@ const AlertDialogComponent = ({
           </AlertDialogCancel>
 
           <AlertDialogAction
-            onClick={Delete}
+            disabled={loading || isSuspended === 'Suspended'}
+            onClick={(e) => {
+              if (loading) {
+                e.preventDefault();
+                return;
+              }
+              if (isSuspended === 'Suspended') {
+                e.preventDefault();
+                return;
+              }
+              // Prevent closing the dialog if we want to show loading state
+              e.preventDefault();
+              Delete();
+            }}
             className={`flex-1 py-2 rounded-lg text-white ${actionBg} `}
           >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {DeleteButtonText}
           </AlertDialogAction>
         </div>
@@ -87,3 +129,5 @@ const AlertDialogComponent = ({
 };
 
 export default AlertDialogComponent;
+
+

@@ -17,12 +17,16 @@ export interface User extends BaseUser {
 export interface BannedUser extends BaseUser {
   reason: string;
   date: string;
+  user?: BaseUser;
+  userId?: number;
 }
 
 export interface SuspendedUser extends BaseUser {
   reason: string;
   date: string;
   duration: string;
+  user?: BaseUser;
+  userId?: number;
 }
 
 export interface AuditLogEntry {
@@ -33,7 +37,8 @@ export interface AuditLogEntry {
   action: 'Suspended' | 'Banned' | 'Lift Suspension' | 'Reinstated';
 
   user: BaseUser;
-
+  moderator?: BaseUser;
+  student?: BaseUser;
   reason: string;
   date: string;
 }

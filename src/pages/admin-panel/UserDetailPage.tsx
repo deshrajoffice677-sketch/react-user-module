@@ -15,26 +15,35 @@ import { useUpdateStatus } from '@/helpers/queries/user/useUpdateStatus';
 import { useNavigate } from 'react-router-dom';
 import Leaderboard from '@/components/AdminPanel/Leaderboard';
 import { ModeratorBadge } from '@/assets/svg/ModeratorBadge';
+import Loader from '@/components/AdminPanel/Loader';
 
 const UserDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { data: currentUser } = useUserDetail(Number(id));
+  const { data: currentUser, isLoading } = useUserDetail(Number(id));
 
-  const { mutate: deleteUser } = useUserDelete();
+  const { mutateAsync: deleteUserAsync, isPending: isDeletePending } = useUserDelete();
 
   const RemoveAccount = () => {
-    deleteUser({ id: Number(id) });
-    toast.success('User removed successfully');
+    toast.promise(deleteUserAsync({ id: Number(id) }), {
+      loading: 'Removing user...',
+      success: 'User removed successfully',
+      error: 'Failed to remove user',
+    });
   };
 
   const [password, setPassword] = useState('');
-  const [result, setResult] = useState({
+  const [result, setResult] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+  }>({
     isOpen: false,
     title: '',
     message: '',
-    type: '',
+    type: 'success',
   });
 
   const resetPassword = () => {
@@ -46,19 +55,38 @@ const UserDetailPage = () => {
     });
   };
 
-  const { mutate: mutateStatus } = useUpdateStatus();
-  const suspendAccount = (): any => {
-    mutateStatus({ id: Number(id), status: 'Suspended' });
+  const { mutateAsync: mutateStatusAsync, isPending: isStatusPending } = useUpdateStatus();
+  const suspendAccount = (): void => {
+    toast.promise(mutateStatusAsync({ id: Number(id), status: 'Suspended' }), {
+      loading: 'Suspending account...',
+      success: 'Account suspended successfully',
+      error: 'Failed to suspend account',
+    });
   };
-  const deleteAccount = (): any => {
-    deleteUser({ id: Number(id) });
-
-    setTimeout(() => {
-      navigate('/user-management/users');
-    }, 1000);
+  const deleteAccount = (): void => {
+    toast.promise(
+      deleteUserAsync({ id: Number(id) }).then(() => {
+        setTimeout(() => {
+          navigate('/user-management/users');
+        }, 1000);
+      }),
+      {
+        loading: 'Deleting account...',
+        success: 'Account deleted successfully',
+        error: 'Failed to delete account',
+      },
+    );
   };
 
-  if (!currentUser) return <div>No user Found</div>;
+  if (!currentUser && isLoading)
+    return (
+      <>
+        {' '}
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader size={32} />
+        </div>
+      </>
+    );
 
   return (
     <>
@@ -90,9 +118,8 @@ const UserDetailPage = () => {
           {currentUser.role === 'Moderator' ? <ManageModeratorDialog /> : <MakeModeratorDialog />}
         </div>
 
+        <h3 className="font-semibold text-lg mt-6 mb-[-15px]">Activity Summary</h3>
         <section className="mt-6 bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-lg mb-6">Activity Summary</h3>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-12 text-sm">
             <div>
               <p className="text-gray-500">Last Login</p>
@@ -129,132 +156,134 @@ const UserDetailPage = () => {
         <Leaderboard />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* COURSES */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div>
             <h3 className="font-semibold text-lg mb-4">Courses</h3>
 
-            <div className="space-y-6 max-h-[320px] overflow-y-auto pr-2">
-              {[
-                { title: 'Lorem ipsum dolor', progress: 100, status: 'Completed' },
-                { title: 'Lorem ipsum dolor', progress: 40, status: 'In progress' },
-                { title: 'Lorem ipsum dolor', progress: 100, status: 'Completed' },
-              ].map((course, i) => (
-                <div key={i} className="flex gap-4 items-start">
-                  <img
-                    src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=80"
-                    className="w-14 h-14 rounded-md object-cover"
-                    alt=""
-                  />
+            <div className="bg-white rounded-xl border border-gray-200 p-6 h-[280px]">
+              <div className="space-y-6 h-full overflow-y-auto">
+                {[
+                  { title: 'Lorem ipsum dolor', progress: 100, status: 'Completed' },
+                  { title: 'Lorem ipsum dolor', progress: 40, status: 'In progress' },
+                  { title: 'Lorem ipsum dolor', progress: 100, status: 'Completed' },
+                ].map((course, i) => (
+                  <div key={i} className="flex gap-4 items-start">
+                    <img
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_u0S7cYc4ncDdS9rZo8a-cvDrt9Vuu1gSww&s"
+                      className="w-12 h-12 rounded-md object-cover"
+                      alt=""
+                    />
 
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <p className="font-medium text-sm">{course.title}</p>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                        <p className="font-medium text-sm">{course.title}</p>
+
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${
+                            course.status === 'Completed'
+                              ? 'bg-green-100 text-green-600'
+                              : 'bg-yellow-100 text-yellow-600'
+                          }`}
+                        >
+                          {course.status}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-gray-500 mt-1">{course.progress}% completed</p>
+
+                      <div className="h-2 bg-gray-200 rounded-full mt-2">
+                        <div
+                          className="h-2 bg-gray-900 rounded-full"
+                          style={{ width: `${course.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Channels</h3>
+
+            <div className="bg-white rounded-xl border border-gray-200 h-[280px] overflow-y-auto">
+              <div className="divide-y divide-gray-100 text-sm">
+                <div className="py-4 px-6"># Q&amp;A</div>
+                <div className="py-4 px-6"># Wins</div>
+                <div className="py-4 px-6 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-gray-700" />
+                  <span>Private</span>
+                </div>
+                <div className="py-4 px-6"># Course</div>
+                <div className="py-4 px-6"># Q&amp;A</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-[260px]">
+            <h3 className="font-semibold text-lg mb-4">Subscription Info</h3>
+
+            <div className="bg-white rounded-xl border border-gray-200 p-6 h-full flex flex-col">
+              <div className="divide-y divide-gray-100 text-sm flex-1 overflow-y-auto">
+                <div className="flex justify-between py-3">
+                  <span className="text-gray-500">Plan</span>
+                  <span className="font-medium">{currentUser.subscription}</span>
+                </div>
+
+                <div className="flex justify-between py-3">
+                  <span className="text-gray-500">Renewal Date</span>
+                  <span className="font-medium">April 30, 2025</span>
+                </div>
+
+                <div className="flex justify-between py-3">
+                  <span className="text-gray-500">Billing Status</span>
+                  <span className="font-medium">Active</span>
+                </div>
+
+                <div className="flex justify-between py-3">
+                  <span className="text-gray-500">Joined On</span>
+                  <span className="font-medium">
+                    {new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-[260px]">
+            <h3 className="font-semibold text-lg mb-4">Upcoming Calls</h3>
+
+            <div className="bg-white rounded-xl border border-gray-200 p-6 h-full flex flex-col">
+              <div className="divide-y divide-gray-100 flex-1 overflow-y-auto">
+                {[{ status: 'Going' }, { status: 'Not Going' }, { status: 'Going' }].map(
+                  (call, i) => (
+                    <div key={i} className="flex justify-between items-center py-4">
+                      <div>
+                        <p className="font-medium text-sm">Lorem ipsum dolor</p>
+                        <p className="text-xs text-gray-500">April 30, 2025 at 2:00 PM</p>
+                      </div>
 
                       <span
                         className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          course.status === 'Completed'
+                          call.status === 'Going'
                             ? 'bg-green-100 text-green-600'
-                            : 'bg-yellow-100 text-yellow-600'
+                            : 'bg-red-100 text-red-600'
                         }`}
                       >
-                        {course.status}
+                        {call.status}
                       </span>
                     </div>
-
-                    <p className="text-xs text-gray-500 mt-1">{course.progress}% completed</p>
-
-                    <div className="h-2 bg-gray-200 rounded-full mt-2">
-                      <div
-                        className="h-2 bg-gray-900 rounded-full"
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CHANNELS */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="font-semibold text-lg mb-4">Channels</h3>
-
-            <div className="divide-y text-sm">
-              <div className="py-4"># Q&amp;A</div>
-              <div className="py-4"># Wins</div>
-              <div className="py-4 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-black" /> Private
+                  ),
+                )}
               </div>
-              <div className="py-4"># Course</div>
-            </div>
-          </div>
-
-          {/* SUBSCRIPTION INFO */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="font-semibold text-lg mb-4">Subscription Info</h3>
-
-            <div className="divide-y text-sm">
-              <div className="flex justify-between py-4">
-                <span className="text-gray-500">Plan</span>
-                <span className="font-medium">{currentUser.subscription}</span>
-              </div>
-
-              <div className="flex justify-between py-4">
-                <span className="text-gray-500">Renewal Date</span>
-                <span className="font-medium">April 30, 2025</span>
-              </div>
-
-              <div className="flex justify-between py-4">
-                <span className="text-gray-500">Billing Status</span>
-                <span className="font-medium">Active</span>
-              </div>
-
-              <div className="flex justify-between py-4">
-                <span className="text-gray-500">Joined On</span>
-                <span className="font-medium">
-                  {new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: '2-digit',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* UPCOMING CALLS */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="font-semibold text-lg mb-4">Upcoming Calls</h3>
-
-            <div className="space-y-4">
-              {[{ status: 'Going' }, { status: 'Not Going' }, { status: 'Going' }].map(
-                (call, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center border-b pb-4 last:border-none"
-                  >
-                    <div>
-                      <p className="font-medium text-sm">Lorem ipsum dolor</p>
-                      <p className="text-xs text-gray-500">April 30, 2025 at 2:00 PM</p>
-                    </div>
-
-                    <span
-                      className={`text-xs px-3 py-1 rounded-full font-medium ${
-                        call.status === 'Going'
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-red-100 text-red-600'
-                      }`}
-                    >
-                      {call.status}
-                    </span>
-                  </div>
-                ),
-              )}
             </div>
           </div>
         </div>
-
-        <div className="flex gap-3 mt-8">
+        <div className="flex gap-3 mt-20 mb-[-25px]">
           <PasswordResetDialog
             heading="Reset Password"
             password={password}
@@ -280,6 +309,7 @@ const UserDetailPage = () => {
             DeleteButtonText="Remove User"
             CancelButtonText="Close"
             type="remove"
+            loading={isDeletePending}
           />
 
           <AlertDialogComponent
@@ -291,6 +321,7 @@ const UserDetailPage = () => {
             DeleteButtonText="Suspend"
             CancelButtonText="Close"
             type="suspend"
+            loading={isStatusPending}
           />
 
           <AlertDialogComponent
@@ -301,6 +332,7 @@ const UserDetailPage = () => {
             DeleteButtonText="Delete Account"
             CancelButtonText="Close"
             type="delete"
+            loading={isDeletePending}
           />
         </div>
       </div>

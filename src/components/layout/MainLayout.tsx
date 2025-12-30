@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
 import {
   FiSearch,
   FiBell,
@@ -22,11 +21,12 @@ type NavItemProps = {
   onClick?: () => void;
 };
 
-type MainLayoutProps = {
-  children?: ReactNode;
+
+interface MainLayoutProps {
+  children: React.ReactNode;
   showSearch?: boolean;
   searchPlaceholder?: string;
-};
+}
 
 const NavItem = ({ icon, text, isActive, sidebarOpen, onClick }: NavItemProps) => (
   <div

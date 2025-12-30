@@ -1,4 +1,5 @@
 import AuditLogTable from '@/components/AdminPanel/AuditLogTable';
+import type { User } from '@/types/interface/UsersInterface';
 import BanedSuspendUserDataDialog from '@/components/AdminPanel/SuspendUserDataDialog';
 import DropDownComponent from '@/components/AdminPanel/DropDownComponent';
 import PendingInvitesDialog from '@/components/AdminPanel/PendingInvitesDialog';
@@ -11,11 +12,12 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu';
 import { Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useUsers } from "../../helpers/queries/user/useUsers"
+import { useUsers } from '../../helpers/queries/user/useUsers';
 import { useUpdateStatus } from '@/helpers/queries/user/useUpdateStatus';
 import AlertDialogComponent from '@/components/AdminPanel/AlertDialogComponent';
 import { ManageModeratorDialog } from '@/components/AdminPanel/ManageModeratorDialog';
@@ -31,6 +33,7 @@ import { ModeratorBadge } from '@/assets/svg/ModeratorBadge';
 import { formatDate } from '@/lib/DateFormatter';
 import { timeAgo } from '@/lib/RelativeTime';
 import { toast } from 'sonner';
+import Loader from '@/components/AdminPanel/Loader';
 
 const tabs = [
   { label: 'User Directory', value: 'user-directory' },
@@ -45,53 +48,21 @@ const UsersPage = () => {
   const [selectRole, setSelectRole] = useState<string>('All');
   const [selectStatus, setSelectStatus] = useState<string>('All');
   const [selectSubscription, setSelectSubscription] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const { data: userData = [], isLoading } = useUsers();
 
-  const { data: userData = [] } = useUsers();
-
-  /* const [selectUserList, setSelectUserList] = useState<any[]>(userData); */
-  /* useEffect(() => {
-    setSelectUserList(userData);
-  }, [userData]) */
-
-  const selectUserList = userData.filter((u: any) => {
+  const selectUserList = userData.filter((u: User) => {
     const roleMatch = selectRole === 'All' || u.role === selectRole;
     const statusMatch = selectStatus === 'All' || u.status === selectStatus;
     const subMatch = selectSubscription === 'All' || u.subscription === selectSubscription;
-    return roleMatch && statusMatch && subMatch;
+    const searchMatch = searchQuery === '' ||
+      (u.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+    return roleMatch && statusMatch && subMatch && searchMatch;
   });
 
-  const dropDownItems = [
-    {
-      Label: 'Role',
-      getter: selectRole,
-      setter: setSelectRole,
-      value: ['All', 'Moderator', 'Student'],
-    },
-    {
-      Label: 'Status',
-      getter: selectStatus,
-      setter: setSelectStatus,
-      value: ['All', 'Active', 'Suspended', 'Banned'],
-    },
-    {
-      Label: 'Subscription',
-      getter: selectSubscription,
-      setter: setSelectSubscription,
-      value: ['All', 'Free', 'Yearly', 'Monthly'],
-    },
-  ];
 
-  /* useEffect(() => {
-    setSelectUserList(
-      userData.filter((u: any) => {
-        const roleMatch = selectRole === 'All' || u.role === selectRole;
-        const statusMatch = selectStatus === 'All' || u.status === selectStatus;
-        const subMatch = selectSubscription === 'All' || u.subscription === selectSubscription;
-        return roleMatch && statusMatch && subMatch;
-      }),
-    );
-  }, [selectRole, selectStatus, selectSubscription]); */
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,27 +71,34 @@ const UsersPage = () => {
   };
 
   const removeFile = () => setFile(null);
-  const { mutate: mutateStatus } = useUpdateStatus();
-
-
-
+  const { mutateAsync: mutateStatusAsync, isPending: isStatusPending } = useUpdateStatus();
+  const [isSending, setIsSending] = useState(false);
   const [selectedUserID, setSelectedUserID] = useState(0);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
 
-
-
-  const suspendAccount = (): any => {
+  const suspendAccount = async (): Promise<void> => {
+    const promise = mutateStatusAsync({ id: selectedUserID, status: 'Suspended' });
+    toast.promise(promise, {
+      loading: 'Suspending user...',
+      success: 'User suspended successfully',
+      error: 'Failed to suspend user',
+    });
+    await promise;
     setOpenDropdownId(null);
-    mutateStatus({ id: selectedUserID, status: "Suspended" });
+  };
+  const { mutateAsync: deleteUserAsync, isPending: isDeletePending } = useUserDelete();
+  const { mutateAsync: reinstateAsync, isPending: isReinstatePending } = useReinstateUser();
+  const { mutateAsync: liftAsync, isPending: isLiftPending } = useLiftSuspension();
 
-  }
-  const { mutate: deleteUser } = useUserDelete();
-  const { mutate: reinstate } = useReinstateUser();
-  const { mutate: lift } = useLiftSuspension();
-
-  const RemoveAccount = (): any => {
+  const RemoveAccount = async (): Promise<void> => {
+    const promise = deleteUserAsync({ id: selectedUserID });
+    toast.promise(promise, {
+      loading: 'Removing user...',
+      success: 'User removed successfully',
+      error: 'Failed to remove user',
+    });
+    await promise;
     setOpenDropdownId(null);
-    deleteUser({ id: selectedUserID });
   };
 
   const cancelClick = () => {
@@ -132,17 +110,41 @@ const UsersPage = () => {
   const { data: auditLogData = [] } = useAuditUsers();
 
   const reinstateUser = (id: number) => {
-    reinstate(id);
+    const promise = reinstateAsync(id);
+    toast.promise(promise, {
+      loading: 'Reinstating user...',
+      success: 'User reinstated successfully',
+      error: 'Failed to reinstate user',
+    });
+    return promise;
   };
 
   const liftUserSuspension = (id: number) => {
-    lift(id);
+    const promise = liftAsync(id);
+    toast.promise(promise, {
+      loading: 'Lifting suspension...',
+      success: 'User suspension lifted successfully',
+      error: 'Failed to lift suspension',
+    });
+    return promise;
   };
 
-  const sendInvitation = () => {
-    toast.success("Send invitation successfully.");
-    setFile(null);
-  }
+  const sendInvitation = async () => {
+    setIsSending(true);
+    const promise = new Promise((resolve) => setTimeout(resolve, 2000));
+    toast.promise(promise, {
+      loading: 'Sending invitations...',
+      success: 'Send invitation successfully.',
+      error: 'Failed to send invitations',
+    });
+
+    try {
+      await promise;
+      setFile(null);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <>
@@ -159,148 +161,195 @@ const UsersPage = () => {
             value="user-directory"
             className="mt-4 rounded-2xl bg-white p-6 text-sm text-gray-600"
           >
-            <div className="flex justify-between items-center mb-5">
-              <h2 className="text-xl font-semibold">User Directory</h2>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-gray-900">User Directory</h2>
 
-              <div className="flex items-center gap-5">
-                <div className="relative w-72">
-                  <i className="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm" />
+              <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                <div className="relative w-full md:w-64">
+                  <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                   <Input
-                    type="search"
                     placeholder="Search"
-                    className="pl-10 py-2 h-9 rounded-full border-gray-300 text-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-10 h-10 rounded-lg border-gray-200 text-sm w-full focus-visible:ring-blue-500"
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <i className="fa-solid fa-xmark text-sm" />
+                    </button>
+                  )}
                 </div>
                 <div className="flex gap-4 items-center">
-                  {dropDownItems.map((item, index) => (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Role</span>
                     <DropDownComponent
-                      key={index}
-                      label={item.Label}
-                      value={item.getter}
-                      setValue={item.setter}
-                      list={item.value}
+                      value={selectRole}
+                      setValue={setSelectRole}
+                      list={['All', 'Moderator', 'Student']}
                     />
-                  ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Status</span>
+                    <DropDownComponent
+                      value={selectStatus}
+                      setValue={setSelectStatus}
+                      list={['All', 'Active', 'Suspended', 'Banned']}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Subscription</span>
+                    <DropDownComponent
+                      value={selectSubscription}
+                      setValue={setSelectSubscription}
+                      list={['All', 'Free', 'Yearly', 'Monthly']}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="border rounded-xl overflow-hidden">
-              <table className="w-full text-sm text-gray-700">
-                <thead className="bg-gray-50 font-extrabold text-black">
+            <div className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+              <table className="w-full text-sm text-gray-600">
+                <thead className="bg-[#F9FAFB]">
                   <tr>
-                    <th className="py-3 px-4 text-left">#</th>
-                    <th className="py-3 px-4 text-left">Name</th>
-                    <th className="py-3 px-4 text-left">Email</th>
-                    <th className="py-3 px-4 text-left">Role</th>
-                    <th className="py-3 px-4 text-left">Status</th>
-                    <th className="py-3 px-4 text-left">Subscription</th>
-                    <th className="py-3 px-4 text-left">Joined Date</th>
-                    <th className="py-3 px-4 text-left">Last Active</th>
-                    <th className="py-3 px-4 text-right">Action</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900 w-12">#</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Name</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Email</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Role</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Status</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Subscription</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Joined Date</th>
+                    <th className="py-4 px-4 text-left font-semibold text-gray-900">Last Active</th>
+                    <th className="py-4 px-4 text-right font-semibold text-gray-900">Action</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {selectUserList && selectUserList.map((u: any, index: number) => (
-                    <tr
-                      key={u.id}
-                      className=" hover:bg-gray-50 cursor-pointer transition"
-                      onClick={() => navigate(`detail/${u.id}`)}
-                    >
-                      <td className="py-4 px-4">{index + 1}</td>
-
-                      <td className="py-4 px-4 flex items-center gap-3">
-                        <img
-                          src={u.avatar}
-                          alt={u.name}
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
-                        <span className="font-medium">{u.name}</span>
-
-                        {u.role === 'Moderator' && <ModeratorBadge />}
-                      </td>
-
-                      <td className="py-4 px-4">{u.email}</td>
-                      <td className="py-4 px-4">{u.role}</td>
-                      <td className="py-4 px-4">
-                        <span
-                          className={`
-                            px-3 py-1 rounded-full text-xs font-medium border
-                            ${u.status === 'Active'
-                              ? 'bg-green-100 text-green-600 border-green-200'
-                              : u.status === 'Banned'
-                                ? 'bg-red-100 text-red-600 border-red-200'
-                                : 'bg-yellow-100 text-yellow-700 border-yellow-200'
-                            }
-                          `}
-                        >
-                          {u.status}
-                        </span>
-                      </td>
-
-                      <td className="py-4 px-4">{u.subscription}</td>
-                      <td className="py-4 px-4">
-                        {/* {u.joinedDate} */}
-                        {formatDate(u.joinedDate)}
-
-                      </td>
-                      <td className="py-4 px-4">
-                        {/* {u.lastActive} */}
-                        {timeAgo(u.lastActive)}
-                      </td>
-
-                      <td className="py-4 px-4 text-right" onClick={(e) => {
-                        // alert(u.id)
-                        setSelectedUserID(u.id);
-                        e.stopPropagation()
-                      }}>
-                        <DropdownMenu open={openDropdownId === u.id}
-                          onOpenChange={(open) => {
-                            setOpenDropdownId(open ? u.id : null);
-                            if (open) setSelectedUserID(u.id);
-                          }}  >
-                          <DropdownMenuTrigger asChild >
-                            <i className="fa-solid fa-ellipsis-vertical cursor-pointer p-2 rounded-md hover:bg-gray-100"></i>
-                          </DropdownMenuTrigger>
-
-                          <DropdownMenuContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-[160px] bg-white rounded-xl shadow-xl border p-1"
-                          >
-
-                            {u.role === 'Moderator' ? <ManageModeratorDialog className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full" cancel={cancelClick} /> : <MakeModeratorDialog className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full" cancel={cancelClick} />}
-
-                            <AlertDialogComponent
-                              isSuspended={u.status}
-                              heading="Suspend"
-                              message="Suspend this Account?"
-                              messageDescription="This will temporarily restrict the user from logging in or accessing any platform features. You can reactivate their account anytime."
-                              Delete={suspendAccount}
-                              DeleteButtonText="Suspend"
-                              CancelButtonText="Close"
-                              type="suspend"
-                              className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full"
-                              cancel={cancelClick}
-                            />
-
-                            <AlertDialogComponent
-                              heading="Remove user"
-                              message="Remove this User from Channels?"
-                              messageDescription="The user will be removed from all current channels. They’ll lose access to ongoing discussions and shared files."
-                              Delete={RemoveAccount}
-                              DeleteButtonText="Remove User"
-                              CancelButtonText="Close"
-                              type="remove"
-                              className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full"
-                              cancel={cancelClick}
-                            />
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {isLoading && (
+                    <tr>
+                      <td colSpan={9} className="py-10 text-center">
+                        <div className="flex justify-center">
+                          <Loader size={32} />
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  )}
+                  {selectUserList && !isLoading &&
+                    selectUserList.map((u: User, index: number) => (
+                      <tr
+                        key={u.id}
+                        className="hover:bg-gray-50/50 cursor-pointer transition-colors"
+                        onClick={() => navigate(`detail/${u.id}`)}
+                      >
+                        <td className="py-4 px-4 text-gray-500">{index + 1}</td>
+
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={u.avatar}
+                              alt={u.name}
+                              className="h-10 w-10 rounded-full object-cover border border-gray-100"
+                            />
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-900">{u.name}</span>
+                              {u.role === 'Moderator' && <ModeratorBadge />}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-4 text-gray-500">{u.email}</td>
+
+                        <td className="py-4 px-4 font-medium">{u.role}</td>
+                        <td className="py-4 px-4">
+                          <Badge
+                            variant={
+                              u.status === 'Active'
+                                ? 'success'
+                                : u.status === 'Suspended'
+                                  ? 'warning'
+                                  : u.status === 'Banned'
+                                    ? 'destructive'
+                                    : 'secondary'
+                            }
+                            className="font-medium"
+                          >
+                            {u.status}
+                          </Badge>
+                        </td>
+
+                        <td className="py-4 px-4">{u.subscription}</td>
+                        <td className="py-4 px-4 text-gray-500">{formatDate(u.joinedDate)}</td>
+                        <td className="py-4 px-4 text-gray-500">{timeAgo(u.lastActive)}</td>
+
+                        <td
+                          className="py-4 px-4 text-right"
+                          onClick={(e) => {
+                            setSelectedUserID(u.id);
+                            e.stopPropagation();
+                          }}
+                        >
+                          <DropdownMenu
+                            open={openDropdownId === u.id}
+                            onOpenChange={(open) => {
+                              setOpenDropdownId(open ? u.id : null);
+                              if (open) setSelectedUserID(u.id);
+                            }}
+                          >
+                            <DropdownMenuTrigger asChild>
+                              <i className="fa-solid fa-ellipsis-vertical cursor-pointer p-2 rounded-md hover:bg-gray-100"></i>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent
+                              align="end"
+                              sideOffset={8}
+                              className="w-[160px] bg-white rounded-xl shadow-xl border p-1"
+                            >
+                              {u.role === 'Moderator' ? (
+                                <ManageModeratorDialog
+                                  className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full"
+                                  cancel={cancelClick}
+                                />
+                              ) : (
+                                <MakeModeratorDialog
+                                  className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full"
+                                  cancel={cancelClick}
+                                />
+                              )}
+
+                              <AlertDialogComponent
+                                isSuspended={u.status}
+                                heading="Suspend"
+                                message="Suspend this Account?"
+                                messageDescription="This will temporarily restrict the user from logging in or accessing any platform features. You can reactivate their account anytime."
+                                Delete={suspendAccount}
+                                DeleteButtonText="Suspend"
+                                CancelButtonText="Close"
+                                type="suspend"
+                                className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full"
+                                cancel={cancelClick}
+                                loading={isStatusPending}
+                              />
+
+                              <AlertDialogComponent
+                                heading="Remove user"
+                                message="Remove this User from Channels?"
+                                messageDescription="The user will be removed from all current channels. They’ll lose access to ongoing discussions and shared files."
+                                Delete={RemoveAccount}
+                                DeleteButtonText="Remove User"
+                                CancelButtonText="Close"
+                                type="remove"
+                                className="border-none cursor-pointer px-4 py-2 text-sm text-left hover:bg-gray-300 flex justify-start hover:border-4 w-full"
+                                cancel={cancelClick}
+                                loading={isDeletePending}
+                              />
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -347,7 +396,7 @@ const UsersPage = () => {
                 )}
 
                 {file && (
-                  <div className="flex items-center justify-between bg-white border rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between bg-white border-none rounded-xl p-4 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                         <span className="text-green-700 font-bold text-sm">.CSV</span>
@@ -369,8 +418,12 @@ const UsersPage = () => {
                 )}
               </div>
 
-              <Button className="w-full bg-gray-700 text-white hover:bg-gray-400" disabled={!file} onClick={() => sendInvitation()}>
-                Send Invites
+              <Button
+                className="w-full bg-gray-700 text-white hover:bg-gray-400"
+                disabled={!file || isSending}
+                onClick={() => sendInvitation()}
+              >
+                {isSending ? 'Sending...' : 'Send Invites'}
               </Button>
             </div>
           </TabsContent>
@@ -381,14 +434,15 @@ const UsersPage = () => {
               showDuration={true}
               actionLabel="Lift Suspension"
               onActionClick={(id: number) => liftUserSuspension(id)}
+              loading={isLiftPending}
             />
-
-
 
             <BanedDataDialog
               title="Banned Users"
               data={bannedUser}
-              onReinstate={(id: number) => reinstateUser(id)} />
+              onReinstate={(id: number) => reinstateUser(id)}
+              loading={isReinstatePending}
+            />
           </TabsContent>
 
           <TabsContent value="audit-log" className="p-6">
