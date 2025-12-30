@@ -36,7 +36,7 @@ const invites: Invite[] = [
   { id: 5, email: 'courtney@gmail.com', role: 'Member', date: '23/10/2024', status: 'Pending' },
 ];
 
-export default function PendingInvitesDialog() {
+  /* ---------------- STATE ---------------- */
   const [selected, setSelected] = useState<number[]>([]);
   const [selectStatus, setSelectStatus] = useState<'All' | 'Pending' | 'Expired'>('All');
 

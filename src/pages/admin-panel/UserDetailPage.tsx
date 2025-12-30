@@ -15,13 +15,12 @@ import { useUpdateStatus } from '@/helpers/queries/user/useUpdateStatus';
 import { useNavigate } from 'react-router-dom';
 import Leaderboard from '@/components/AdminPanel/Leaderboard';
 import { ModeratorBadge } from '@/assets/svg/ModeratorBadge';
-import Loader from '@/components/AdminPanel/Loader';
 
 const UserDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { data: currentUser, isLoading } = useUserDetail(Number(id));
+  const { data: currentUser } = useUserDetail(Number(id));
 
   const { mutateAsync: deleteUserAsync, isPending: isDeletePending } = useUserDelete();
 
@@ -55,27 +54,17 @@ const UserDetailPage = () => {
     });
   };
 
-  const { mutateAsync: mutateStatusAsync, isPending: isStatusPending } = useUpdateStatus();
-  const suspendAccount = (): void => {
-    toast.promise(mutateStatusAsync({ id: Number(id), status: 'Suspended' }), {
-      loading: 'Suspending account...',
-      success: 'Account suspended successfully',
-      error: 'Failed to suspend account',
-    });
+
+  const { mutate: mutateStatus } = useUpdateStatus();
+  const suspendAccount = (): any => {
+    mutateStatus({ id: Number(id), status: 'Suspended' });
   };
-  const deleteAccount = (): void => {
-    toast.promise(
-      deleteUserAsync({ id: Number(id) }).then(() => {
-        setTimeout(() => {
-          navigate('/user-management/users');
-        }, 1000);
-      }),
-      {
-        loading: 'Deleting account...',
-        success: 'Account deleted successfully',
-        error: 'Failed to delete account',
-      },
-    );
+  const deleteAccount = (): any => {
+    deleteUser({ id: Number(id) });
+
+    setTimeout(() => {
+      navigate('/user-management/users');
+    }, 1000);
   };
 
   if (!currentUser && isLoading)
@@ -156,7 +145,8 @@ const UserDetailPage = () => {
         <Leaderboard />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
+          {/* COURSES */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="font-semibold text-lg mb-4">Courses</h3>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 h-[280px]">
@@ -177,18 +167,18 @@ const UserDetailPage = () => {
                       <div className="flex justify-between items-center">
                         <p className="font-medium text-sm">{course.title}</p>
 
-                        <span
-                          className={`text-xs px-3 py-1 rounded-full font-medium ${
-                            course.status === 'Completed'
-                              ? 'bg-green-100 text-green-600'
-                              : 'bg-yellow-100 text-yellow-600'
-                          }`}
-                        >
-                          {course.status}
-                        </span>
-                      </div>
+                      <span
+                        className={`text-xs px-3 py-1 rounded-full font-medium ${
+                          course.status === 'Completed'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-yellow-100 text-yellow-600'
+                        }`}
+                      >
+                        {course.status}
+                      </span>
+                    </div>
 
-                      <p className="text-xs text-gray-500 mt-1">{course.progress}% completed</p>
+                    <p className="text-xs text-gray-500 mt-1">{course.progress}% completed</p>
 
                       <div className="h-2 bg-gray-200 rounded-full mt-2">
                         <div
@@ -240,16 +230,15 @@ const UserDetailPage = () => {
                   <span className="font-medium">Active</span>
                 </div>
 
-                <div className="flex justify-between py-3">
-                  <span className="text-gray-500">Joined On</span>
-                  <span className="font-medium">
-                    {new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: '2-digit',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </div>
+              <div className="flex justify-between py-4">
+                <span className="text-gray-500">Joined On</span>
+                <span className="font-medium">
+                  {new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: '2-digit',
+                    year: 'numeric',
+                  })}
+                </span>
               </div>
             </div>
           </div>
@@ -257,33 +246,35 @@ const UserDetailPage = () => {
           <div className="h-[260px]">
             <h3 className="font-semibold text-lg mb-4">Upcoming Calls</h3>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6 h-full flex flex-col">
-              <div className="divide-y divide-gray-100 flex-1 overflow-y-auto">
-                {[{ status: 'Going' }, { status: 'Not Going' }, { status: 'Going' }].map(
-                  (call, i) => (
-                    <div key={i} className="flex justify-between items-center py-4">
-                      <div>
-                        <p className="font-medium text-sm">Lorem ipsum dolor</p>
-                        <p className="text-xs text-gray-500">April 30, 2025 at 2:00 PM</p>
-                      </div>
-
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          call.status === 'Going'
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-red-100 text-red-600'
-                        }`}
-                      >
-                        {call.status}
-                      </span>
+            <div className="space-y-4">
+              {[{ status: 'Going' }, { status: 'Not Going' }, { status: 'Going' }].map(
+                (call, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between items-center border-b pb-4 last:border-none"
+                  >
+                    <div>
+                      <p className="font-medium text-sm">Lorem ipsum dolor</p>
+                      <p className="text-xs text-gray-500">April 30, 2025 at 2:00 PM</p>
                     </div>
-                  ),
-                )}
-              </div>
+
+                    <span
+                      className={`text-xs px-3 py-1 rounded-full font-medium ${
+                        call.status === 'Going'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
+                      }`}
+                    >
+                      {call.status}
+                    </span>
+                  </div>
+                ),
+              )}
             </div>
           </div>
         </div>
-        <div className="flex gap-3 mt-20 mb-[-25px]">
+
+        <div className="flex gap-3 mt-8">
           <PasswordResetDialog
             heading="Reset Password"
             password={password}
@@ -332,7 +323,6 @@ const UserDetailPage = () => {
             DeleteButtonText="Delete Account"
             CancelButtonText="Close"
             type="delete"
-            loading={isDeletePending}
           />
         </div>
       </div>
