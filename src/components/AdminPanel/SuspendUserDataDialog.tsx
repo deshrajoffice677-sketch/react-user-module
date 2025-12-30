@@ -20,12 +20,7 @@ import DropDownComponent from './DropDownComponent';
 //   onActionClick: (id: number) => void;
 // };
 
-
-export default function BanedSuspendUserDataDialog({
-  title,
-  data,
-  onActionClick
-}: any) {
+export default function BanedSuspendUserDataDialog({ title, data, onActionClick }: any) {
   const [selectReason, setSelectReason] = useState('All');
   const [selectDate, setSelectDate] = useState('All');
 
@@ -43,8 +38,6 @@ export default function BanedSuspendUserDataDialog({
       value: ['All', 'Last 7 Days', 'Last Month'],
     },
   ];
-
-
 
   const filteredData = data.filter((u: any) => {
     const reasonMatch = selectReason === 'All' || u.reason === selectReason;
@@ -71,7 +64,7 @@ export default function BanedSuspendUserDataDialog({
 
   return (
     <div className="space-y-6">
-      <div className='flex justify-between mt-7 '>
+      <div className="flex justify-between mt-7 ">
         <h2 className="text-xl font-semibold">{title}</h2>
 
         <div className="flex items-center justify-between gap-4">
@@ -107,20 +100,11 @@ export default function BanedSuspendUserDataDialog({
           <tbody>
             {filteredData.map((u: any, index: number) => (
               <tr key={u.id} className=" hover:bg-gray-50">
-
-                <td className="py-4 pl-4 pr-2 text-left">
-                  {index + 1}
-                </td>
+                <td className="py-4 pl-4 pr-2 text-left">{index + 1}</td>
 
                 <td className="py-4 px-4 flex items-center gap-3">
-                  <img
-                    src={u.avatar || u.user?.avatar}
-                    className="w-8 h-8 rounded-full"
-                    alt=""
-                  />
-                  <span className="font-medium">
-                    {u.name || u.user?.name}
-                  </span>
+                  <img src={u.avatar || u.user?.avatar} className="w-8 h-8 rounded-full" alt="" />
+                  <span className="font-medium">{u.name || u.user?.name}</span>
                 </td>
 
                 <td className="py-4 px-4">{u.reason}</td>
@@ -143,7 +127,6 @@ export default function BanedSuspendUserDataDialog({
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }

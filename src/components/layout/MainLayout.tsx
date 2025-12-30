@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
 import {
   FiSearch,
   FiBell,
@@ -22,12 +21,6 @@ type NavItemProps = {
   onClick?: () => void;
 };
 
-type MainLayoutProps = {
-  children?: ReactNode;
-  showSearch?: boolean;
-  searchPlaceholder?: string;
-};
-
 const NavItem = ({ icon, text, isActive, sidebarOpen, onClick }: NavItemProps) => (
   <div
     onClick={onClick}
@@ -42,7 +35,7 @@ const MainLayout = ({
   children,
   showSearch = true,
   searchPlaceholder = 'Search for courses...',
-}: MainLayoutProps) => {
+}: any) => {
   const [sidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();

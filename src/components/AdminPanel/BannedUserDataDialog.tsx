@@ -17,12 +17,7 @@ import DropDownComponent from './DropDownComponent';
 //   onReinstate: (id: number) => void;
 // };
 
-
-export default function BanedDataDialog({
-  data,
-  title,
-  onReinstate,
-}: any) {
+export default function BanedDataDialog({ data, title, onReinstate }: any) {
   const [selectReason, setSelectReason] = useState('All');
   const [selectDate, setSelectDate] = useState('All');
 
@@ -40,8 +35,6 @@ export default function BanedDataDialog({
       value: ['All', 'Last 7 Days', 'Last Month'],
     },
   ];
-
-
 
   const filteredData = data.filter((u: any) => {
     const reasonMatch = selectReason === 'All' || u.reason === selectReason;
@@ -67,27 +60,34 @@ export default function BanedDataDialog({
   });
 
   return (
-    <div className="space-y-6">
-      <div className='flex justify-between mt-7 '>
-        <h2 className="text-xl font-semibold">{title}</h2>
+    <>
+      <div className="space-y-6">
+        <div className="flex justify-between mt-7 ">
+          <h2 className="text-xl font-semibold">{title}</h2>
 
-        <div className="flex items-center justify-between gap-4">
-          <Input placeholder="Search" className="max-w-sm rounded-lg" />
-
-          <div className="flex items-center gap-6">
-            {dropDownItems.map((item, index) => (
-              <DropDownComponent
-                key={index}
-                label={item.Label}
-                value={item.getter}
-                setValue={item.setter}
-                list={item.value}
-              />
-            ))}
+          <div className="relative w-72">
+            <i className="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm" />
+            <Input
+              type="search"
+              placeholder="Search"
+              className="pl-10 py-2 h-9 rounded-full border-gray-300 text-sm"
+            />
           </div>
         </div>
 
+        <div className="flex items-center gap-6">
+          {dropDownItems.map((item, index) => (
+            <DropDownComponent
+              key={index}
+              label={item.Label}
+              value={item.getter}
+              setValue={item.setter}
+              list={item.value}
+            />
+          ))}
+        </div>
       </div>
+
       <div className="border rounded-xl overflow-hidden bg-white">
         <table className="w-full text-sm text-gray-700">
           <thead className="bg-gray-50 font-extrabold text-black">
@@ -103,19 +103,11 @@ export default function BanedDataDialog({
           <tbody>
             {filteredData.map((u: any, index: number) => (
               <tr key={u.id} className=" hover:bg-gray-50">
-                <td className="py-4 pl-4 pr-2 text-left">
-                  {index + 1}
-                </td>
+                <td className="py-4 pl-4 pr-2 text-left">{index + 1}</td>
 
                 <td className="py-4 px-4 flex items-center gap-3">
-                  <img
-                    src={u.avatar || u.user?.avatar}
-                    className="w-8 h-8 rounded-full"
-                    alt=""
-                  />
-                  <span className="font-medium">
-                    {u.name || u.user?.name}
-                  </span>
+                  <img src={u.avatar || u.user?.avatar} className="w-8 h-8 rounded-full" alt="" />
+                  <span className="font-medium">{u.name || u.user?.name}</span>
                 </td>
 
                 <td className="py-4 px-4">{u.reason}</td>
@@ -136,7 +128,6 @@ export default function BanedDataDialog({
           </tbody>
         </table>
       </div>
-
-    </div>
+    </>
   );
 }

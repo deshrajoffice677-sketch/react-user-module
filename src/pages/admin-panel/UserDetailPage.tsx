@@ -12,16 +12,15 @@ import { MakeModeratorDialog } from '@/components/AdminPanel/MakeModeratorDialog
 import { useUserDetail } from '@/helpers/queries/user/useUserDetail';
 import { useUserDelete } from '@/helpers/queries/user/useUserDelete';
 import { useUpdateStatus } from '@/helpers/queries/user/useUpdateStatus';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import Leaderboard from '@/components/AdminPanel/Leaderboard';
 import { ModeratorBadge } from '@/assets/svg/ModeratorBadge';
-
 
 const UserDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { data: currentUser, } = useUserDetail(Number(id));
+  const { data: currentUser } = useUserDetail(Number(id));
 
   const { mutate: deleteUser } = useUserDelete();
 
@@ -47,18 +46,17 @@ const UserDetailPage = () => {
     });
   };
 
-
   const { mutate: mutateStatus } = useUpdateStatus();
   const suspendAccount = (): any => {
-    mutateStatus({ id: Number(id), status: "Suspended" });
+    mutateStatus({ id: Number(id), status: 'Suspended' });
   };
   const deleteAccount = (): any => {
     deleteUser({ id: Number(id) });
 
     setTimeout(() => {
-      navigate("/user-management/users")
-    }, 1000)
-  }
+      navigate('/user-management/users');
+    }, 1000);
+  };
 
   if (!currentUser) return <div>No user Found</div>;
 
@@ -80,18 +78,13 @@ const UserDetailPage = () => {
             <img src={currentUser.avatar} className="w-16 h-16 rounded-full" />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold leading-none">
-                  {currentUser.name}
-                </h2>
+                <h2 className="text-lg font-semibold leading-none">{currentUser.name}</h2>
 
                 {currentUser.role === 'Moderator' && <ModeratorBadge />}
               </div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                {currentUser.email}
-              </p>
+              <p className="text-sm text-gray-500 mt-1">{currentUser.email}</p>
             </div>
-
           </div>
 
           {currentUser.role === 'Moderator' ? <ManageModeratorDialog /> : <MakeModeratorDialog />}
@@ -103,55 +96,39 @@ const UserDetailPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-12 text-sm">
             <div>
               <p className="text-gray-500">Last Login</p>
-              <p className="text-base font-semibold text-gray-900 mt-1">
-                Yesterday
-              </p>
+              <p className="text-base font-semibold text-gray-900 mt-1">Yesterday</p>
             </div>
 
             <div>
               <p className="text-gray-500">Lessons Completed</p>
-              <p className="text-base font-semibold text-gray-900 mt-1">
-                42
-              </p>
+              <p className="text-base font-semibold text-gray-900 mt-1">42</p>
             </div>
 
             <div>
               <p className="text-gray-500">Events Attended</p>
-              <p className="text-base font-semibold text-gray-900 mt-1">
-                07
-              </p>
+              <p className="text-base font-semibold text-gray-900 mt-1">07</p>
             </div>
 
             <div>
               <p className="text-gray-500">Points Earned</p>
-              <p className="text-base font-semibold text-gray-900 mt-1">
-                160
-              </p>
+              <p className="text-base font-semibold text-gray-900 mt-1">160</p>
             </div>
 
             <div>
               <p className="text-gray-500">Channels Joined</p>
-              <p className="text-base font-semibold text-gray-900 mt-1">
-                05
-              </p>
+              <p className="text-base font-semibold text-gray-900 mt-1">05</p>
             </div>
 
             <div>
               <p className="text-gray-500">Leaderboard Ranking</p>
-              <p className="text-base font-semibold text-gray-900 mt-1">
-                #12
-              </p>
+              <p className="text-base font-semibold text-gray-900 mt-1">#12</p>
             </div>
           </div>
         </section>
 
-
         <Leaderboard />
 
-
-
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-
           {/* COURSES */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="font-semibold text-lg mb-4">Courses</h3>
@@ -174,18 +151,17 @@ const UserDetailPage = () => {
                       <p className="font-medium text-sm">{course.title}</p>
 
                       <span
-                        className={`text-xs px-3 py-1 rounded-full font-medium ${course.status === 'Completed'
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-yellow-100 text-yellow-600'
-                          }`}
+                        className={`text-xs px-3 py-1 rounded-full font-medium ${
+                          course.status === 'Completed'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-yellow-100 text-yellow-600'
+                        }`}
                       >
                         {course.status}
                       </span>
                     </div>
 
-                    <p className="text-xs text-gray-500 mt-1">
-                      {course.progress}% completed
-                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{course.progress}% completed</p>
 
                     <div className="h-2 bg-gray-200 rounded-full mt-2">
                       <div
@@ -235,11 +211,13 @@ const UserDetailPage = () => {
 
               <div className="flex justify-between py-4">
                 <span className="text-gray-500">Joined On</span>
-                <span className="font-medium">{new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: '2-digit',
-                  year: 'numeric',
-                })}</span>
+                <span className="font-medium">
+                  {new Date(currentUser.joinedDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: '2-digit',
+                    year: 'numeric',
+                  })}
+                </span>
               </div>
             </div>
           </div>
@@ -249,34 +227,32 @@ const UserDetailPage = () => {
             <h3 className="font-semibold text-lg mb-4">Upcoming Calls</h3>
 
             <div className="space-y-4">
-              {[
-                { status: 'Going' },
-                { status: 'Not Going' },
-                { status: 'Going' },
-              ].map((call, i) => (
-                <div key={i} className="flex justify-between items-center border-b pb-4 last:border-none">
-                  <div>
-                    <p className="font-medium text-sm">Lorem ipsum dolor</p>
-                    <p className="text-xs text-gray-500">
-                      April 30, 2025 at 2:00 PM
-                    </p>
-                  </div>
-
-                  <span
-                    className={`text-xs px-3 py-1 rounded-full font-medium ${call.status === 'Going'
-                      ? 'bg-green-100 text-green-600'
-                      : 'bg-red-100 text-red-600'
-                      }`}
+              {[{ status: 'Going' }, { status: 'Not Going' }, { status: 'Going' }].map(
+                (call, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between items-center border-b pb-4 last:border-none"
                   >
-                    {call.status}
-                  </span>
-                </div>
-              ))}
+                    <div>
+                      <p className="font-medium text-sm">Lorem ipsum dolor</p>
+                      <p className="text-xs text-gray-500">April 30, 2025 at 2:00 PM</p>
+                    </div>
+
+                    <span
+                      className={`text-xs px-3 py-1 rounded-full font-medium ${
+                        call.status === 'Going'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
+                      }`}
+                    >
+                      {call.status}
+                    </span>
+                  </div>
+                ),
+              )}
             </div>
           </div>
-
         </div>
-
 
         <div className="flex gap-3 mt-8">
           <PasswordResetDialog
@@ -325,7 +301,6 @@ const UserDetailPage = () => {
             DeleteButtonText="Delete Account"
             CancelButtonText="Close"
             type="delete"
-
           />
         </div>
       </div>
@@ -334,10 +309,3 @@ const UserDetailPage = () => {
 };
 
 export default UserDetailPage;
-
-const SummaryItem = ({ label, value }: any) => (
-  <div className="flex flex-col bg-gray-50 p-3 rounded-lg shadow-sm">
-    <span className="text-gray-500 text-xs">{label}</span>
-    <span className="font-semibold text-lg">{value}</span>
-  </div>
-);
